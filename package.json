@@ -1,0 +1,19 @@
+{
+    "name": "action-test-zt",
+    "version": "2.0.7",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "release": "node scripts/release",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "action-test-zt": "^2.0.3",
+        "pino": "^9.5.0",
+        "pino-pretty": "^11.3.0",
+        "signale": "^1.4.0"
+    }
+}
