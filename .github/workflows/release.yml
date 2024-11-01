@@ -24,15 +24,20 @@ jobs:
           VERSION=${GITHUB_REF#refs/tags/}
           echo "Extracting release notes for version $VERSION"
 
-          # Adjusting the awk command for the specific version format
-          RELEASE_NOTES=$(awk "/## ${VERSION//./\\.}（/,/^## [0-9]+\\.[0-9]+\\.[0-9]+（/" changelog.md | sed '1d;$d')
+          # Read the changelog file
+          NOTES=$(awk -v version="## ${VERSION}（" '
+            BEGIN { found=0 }
+            \$0 ~ version { found=1; next }
+            /^## [0-9]+\.[0-9]+\.[0-9]+（/ && found { exit }
+            found { print }
+          ' demos/demo-normal/uni_modules/zebra-ui/changelog.md)
 
           # Debugging output
           echo "Extracted release notes:"
-          echo "$RELEASE_NOTES"
+          echo "$NOTES"
 
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$RELEASE_NOTES" >> $GITHUB_ENV
+          echo "$NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
       - name: Create GitHub Release
