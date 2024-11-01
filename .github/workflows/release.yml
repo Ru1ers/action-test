@@ -22,23 +22,23 @@ jobs:
         id: extract_notes
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          echo "Extracting release notes for version $VERSION"
+           echo "Extracting release notes for version $VERSION"
+           
+           # Read the changelog file
+           NOTES=$(awk -v version="## ${VERSION}（" '
+             BEGIN { found=0 }
+             \$0 ~ version { found=1; next }
+             /^## [0-9]+\.[0-9]+\.[0-9]+（/ && found { exit }
+             found { print }
+           ' demos/demo-normal/uni_modules/zebra-ui/changelog.md)
 
-          # Read the changelog file
-          NOTES=$(awk -v version="## ${VERSION}（" '
-            BEGIN { found=0 }
-            \$0 ~ version { found=1; next }
-            /^## [0-9]+\.[0-9]+\.[0-9]+（/ && found { exit }
-            found { print }
-          ' demos/demo-normal/uni_modules/zebra-ui/changelog.md)
+           # Debugging output
+           echo "Extracted release notes:"
+           echo "$NOTES"
 
-          # Debugging output
-          echo "Extracted release notes:"
-          echo "$NOTES"
-
-          echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
-          echo "$NOTES" >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+           echo "$NOTES" >> $GITHUB_ENV
+           echo "EOF" >> $GITHUB_ENV
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
