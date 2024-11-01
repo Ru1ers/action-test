@@ -25,7 +25,7 @@ jobs:
           echo "Extracting release notes for version $VERSION"
 
           # Adjusting the awk command for the specific version format
-          RELEASE_NOTES=$(awk "/## ${VERSION//./\\.}（/,/^## [0-9]+\\.[0-9]+\\.[0-9]+（/" demos/demo-normal/uni_modules/zebra-ui/changelog.md | sed '1d;$d')
+          RELEASE_NOTES=$(awk "/## ${VERSION//./\\.}（/,/^## [0-9]+\\.[0-9]+\\.[0-9]+（/" changelog.md | sed '1d;$d')
 
           # Debugging output
           echo "Extracted release notes:"
