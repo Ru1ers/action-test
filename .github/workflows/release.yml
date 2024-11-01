@@ -22,12 +22,16 @@ jobs:
         id: extract_notes
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
+          echo "Extracting release notes for version $VERSION"
           RELEASE_NOTES=$(awk "/## ${VERSION//./\\.}/,/^##/" demos/demo-normal/uni_modules/zebra-ui/changelog.md | sed '1d;$d')
+
+          # Debugging output
+          echo "Extracted release notes:"
+          echo "$RELEASE_NOTES"
+
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          echo "Extracted release notes:"
-          echo "$RELEASE_NOTES"
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
