@@ -26,6 +26,8 @@ jobs:
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
+          echo "Extracted release notes:"
+          echo "$RELEASE_NOTES"
 
       - name: Create GitHub Release
         uses: actions/create-release@v1
