@@ -18,10 +18,11 @@ async function getVersion() {
   }
 }
 
-async function commitToGithub() {
+async function commitAndTag() {
   try {
     const version = await getVersion();
     const commitMessage = `release: ${version}`;
+    const tagName = `${version}`;
 
     signale.pending("添加更改到 git...");
     await execPromise("git add .");
@@ -29,14 +30,18 @@ async function commitToGithub() {
     signale.pending("提交更改...");
     await execPromise(`git commit -m "${commitMessage}"`);
 
+    signale.pending("创建标签...");
+    await execPromise(`git tag ${tagName}`);
+
     signale.pending("推送到 GitHub...");
     await execPromise("git push");
+    await execPromise("git push --tags");
 
-    signale.success("提交并推送成功！");
+    signale.success("提交、打标签并推送成功！");
   } catch (error) {
     signale.error("提交到 GitHub 失败:", error.message);
-    process.exit(1); // 确保进程以错误状态退出
+    process.exit(1);
   }
 }
 
-commitToGithub();
+commitAndTag();
