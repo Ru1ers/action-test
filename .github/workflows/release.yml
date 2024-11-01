@@ -22,7 +22,7 @@ jobs:
         id: extract_notes
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          RELEASE_NOTES=$(awk "/## $VERSION/,/^##/" demos/demo-normal/uni_modules/zebra-ui/changelog.md | sed '1d;$d')
+          RELEASE_NOTES=$(awk "/## ${VERSION//./\\.}/,/^##/" demos/demo-normal/uni_modules/zebra-ui/changelog.md | sed '1d;$d')
           echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
           echo "$RELEASE_NOTES" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
