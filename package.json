@@ -1,6 +1,6 @@
 {
     "name": "action-test-zt",
-    "version": "2.0.22",
+    "version": "2.0.23",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -12,8 +12,6 @@
     "license": "ISC",
     "dependencies": {
         "action-test-zt": "^2.0.3",
-        "pino": "^9.5.0",
-        "pino-pretty": "^11.3.0",
         "signale": "^1.4.0"
     }
 }
