@@ -5,7 +5,7 @@ async function commitToGithub(isBeta = false) {
   try {
     const packageJson = await readJSON("./package.json");
     const version = packageJson.version;
-    const tagName = `v${version}`;
+    const tagName = version;
 
     signale.pending("添加文件到暂存区...");
     await execCommand("git add .");
@@ -15,11 +15,17 @@ async function commitToGithub(isBeta = false) {
 
     signale.pending("创建标签...");
     const tagMessage = isBeta ? "Beta Release" : "Release";
-    await execCommand(`git tag -a ${tagName} -m "${tagMessage}"`);
+    const tagCommand = isBeta
+      ? `git tag -a ${tagName} -m "${tagMessage}" --force`
+      : `git tag -a ${tagName} -m "${tagMessage}"`;
+    await execCommand(tagCommand);
 
     signale.pending("推送到远程仓库...");
     await execCommand("git push");
-    await execCommand("git push --tags");
+    const pushTagsCommand = isBeta
+      ? "git push --tags --force"
+      : "git push --tags";
+    await execCommand(pushTagsCommand);
 
     signale.success("Git 操作完成！");
   } catch (error) {

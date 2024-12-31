@@ -27,6 +27,13 @@ jobs:
           # Use sed to extract the release notes
           NOTES=$(sed -n "/## ${VERSION}（/,/^## [0-9]\+\.[0-9]\+\.[0-9]\+（/p" demos/demo-normal/uni_modules/zebra-ui/changelog.md | sed '1d;$d')
 
+          # Check if this is a beta version
+          if [[ $VERSION == *-beta* ]]; then
+            echo "IS_BETA=true" >> $GITHUB_ENV
+          else
+            echo "IS_BETA=false" >> $GITHUB_ENV
+          fi
+
           # Debugging output
           echo "Extracted release notes:"
           echo "$NOTES"
@@ -44,4 +51,4 @@ jobs:
           release_name: Release ${{ github.ref_name }}
           body: ${{ env.RELEASE_NOTES }}
           draft: false
-          prerelease: false
+          prerelease: ${{ env.IS_BETA == 'true' }}
