@@ -1,6 +1,6 @@
 {
     "name": "action-test-zt",
-    "version": "2.0.26-beta.0",
+    "version": "2.0.26-beta.1",
     "description": "",
     "main": "index.js",
     "scripts": {
