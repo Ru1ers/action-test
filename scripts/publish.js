@@ -1,29 +1,20 @@
-const { exec } = require("child_process");
-const util = require("util");
 const signale = require("signale");
-const path = require("path");
+const { paths, execCommand } = require("./utils");
 
-const execPromise = util.promisify(exec);
-const srcPath = path.join(__dirname, "../src");
-
-async function publishPackage() {
+async function publishToNpm(isBeta = false) {
   try {
-    signale.pending("正在发布包到 npm...");
-    const { stdout, stderr } = await execPromise("npm publish", {
-      cwd: srcPath,
-    });
-
-    signale.success("发布成功:", stdout);
-    if (stderr) {
-      signale.warn("警告:", stderr);
-    }
+    signale.pending(`正在发布${isBeta ? "Beta" : ""}包到 npm...`);
+    const publishTag = isBeta ? "--tag beta" : "";
+    await execCommand(`npm publish ${publishTag}`, { cwd: paths.srcDir });
+    signale.success("npm 发布成功！");
   } catch (error) {
-    signale.error("发布失败:", error.message);
-    throw error; // 确保错误被抛出以中断执行
+    signale.error("npm 发布失败:", error.message);
+    throw error;
   }
 }
 
-publishPackage().catch((error) => {
-  signale.fatal("发布过程中发生错误:", error.message);
-  process.exit(1); // 确保进程以错误状态退出
-});
+if (require.main === module) {
+  publishToNpm();
+}
+
+module.exports = publishToNpm;

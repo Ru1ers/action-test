@@ -1,6 +1,6 @@
 {
     "name": "action-test-zt",
-    "version": "2.0.24-beta.1",
+    "version": "2.0.24",
     "description": "",
     "main": "index.js",
     "scripts": {
@@ -16,5 +16,8 @@
         "action-test-zt": "^2.0.3",
         "semver": "^7.6.3",
         "signale": "^1.4.0"
+    },
+    "devDependencies": {
+        "inquirer": "^12.3.0"
     }
 }

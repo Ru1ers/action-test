@@ -1,46 +1,88 @@
-const { exec } = require("child_process");
-const util = require("util");
+const inquirer = require("inquirer");
 const signale = require("signale");
-const updateVersion = require("./updateVersion");
+const syncChangelog = require("./syncChangelog");
+const syncVersion = require("./syncVersion");
+const publishToNpm = require("./publish");
+const commitToGithub = require("./commitToGithub");
 
-const execPromise = util.promisify(exec);
-
-async function runScript(script, ...args) {
-  try {
-    signale.start(`开始执行 ${script}...`);
-    const { stdout, stderr } = await execPromise(
-      `node scripts/${script} ${args.join(" ")}`,
-      {
-        encoding: "utf8",
-      }
-    );
-    signale.success(`执行 ${script} 成功:\n${stdout}`);
-    if (stderr) {
-      signale.warn(`执行 ${script} 时出现警告:\n${stderr}`);
-    }
-  } catch (error) {
-    signale.error(`执行 ${script} 失败: ${error.message}`);
-    throw error;
-  }
+async function promptReleaseType() {
+  const { type } = await inquirer.prompt([
+    {
+      type: "list",
+      name: "type",
+      message: "请选择发布类型:",
+      choices: [
+        { name: "正式版本", value: "prod" },
+        { name: "Beta 版本", value: "beta" },
+        { name: "仅同步 Changelog", value: "changelog" },
+        { name: "仅同步版本号", value: "version" },
+        { name: "仅发布 NPM", value: "npm" },
+        { name: "仅提交 GitHub", value: "github" },
+      ],
+    },
+  ]);
+  return type;
 }
 
-async function main() {
+async function release() {
   try {
-    const releaseType = process.argv[2] || "patch";
-    const isBeta = releaseType === "beta";
+    const type = process.argv[2] || (await promptReleaseType());
+    const isBeta = type === "beta";
 
-    signale.info(`开始${isBeta ? "Beta" : "正式"}版本发布流程...`);
+    switch (type) {
+      case "prod":
+        signale.start("开始发布正式版本...");
+        await syncChangelog();
+        await syncVersion();
+        await publishToNpm(false);
+        await commitToGithub(false);
+        break;
 
-    await runScript("updateChangelog.js");
-    await updateVersion(isBeta ? "minor" : "patch", isBeta);
-    await runScript("publish.js");
-    await runScript("commitToGithub.js");
+      case "beta":
+        signale.start("开始发布 Beta 版本...");
+        await syncVersion();
+        await publishToNpm(true);
+        await commitToGithub(true);
+        break;
 
-    signale.complete(`${isBeta ? "Beta" : "正式"}版本发布完成！`);
+      case "changelog":
+        await syncChangelog();
+        break;
+
+      case "version":
+        await syncVersion();
+        break;
+
+      case "npm":
+        const { isBetaPublish } = await inquirer.prompt([
+          {
+            type: "confirm",
+            name: "isBetaPublish",
+            message: "是否发布为 Beta 版本?",
+            default: false,
+          },
+        ]);
+        await publishToNpm(isBetaPublish);
+        break;
+
+      case "github":
+        const { isBetaCommit } = await inquirer.prompt([
+          {
+            type: "confirm",
+            name: "isBetaCommit",
+            message: "是否标记为 Beta 版本?",
+            default: false,
+          },
+        ]);
+        await commitToGithub(isBetaCommit);
+        break;
+    }
+
+    signale.complete("发布流程执行完成！");
   } catch (error) {
-    signale.fatal("发布脚本执行过程中发生错误:", error.message);
+    signale.fatal("发布过程出错:", error.message);
     process.exit(1);
   }
 }
 
-main();
+release();
